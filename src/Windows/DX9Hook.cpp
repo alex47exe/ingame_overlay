@@ -283,6 +283,7 @@ void DX9Hook_t::_LoadResources()
         const void* Data;
         uint32_t Width;
         uint32_t Height;
+        RendererPixelFormat PixelFormat;
     };
 
     std::vector<ValidTexture_t> validResources;
@@ -299,7 +300,8 @@ void DX9Hook_t::_LoadResources()
             r,
             param.Data,
             param.Width,
-            param.Height
+            param.Height,
+            param.PixelFormat
         });
     }
 
@@ -310,6 +312,9 @@ void DX9Hook_t::_LoadResources()
         for (size_t i = 0; i < validResources.size(); ++i)
         {
             auto& tex = validResources[i];
+            D3DFORMAT textureFormat = (tex.PixelFormat == RendererPixelFormat::RGBA16F)
+                ? D3DFMT_A16B16G16R16F
+                : D3DFMT_A8R8G8B8;
 
             dx9Tex = nullptr;
             _Device->CreateTexture(
@@ -317,7 +322,7 @@ void DX9Hook_t::_LoadResources()
                 tex.Height,
                 1,
                 D3DUSAGE_DYNAMIC,
-                D3DFMT_A8R8G8B8,
+                textureFormat,
                 D3DPOOL_DEFAULT,
                 &dx9Tex,
                 nullptr
@@ -328,17 +333,31 @@ void DX9Hook_t::_LoadResources()
                 D3DLOCKED_RECT rect;
                 if (SUCCEEDED(dx9Tex->LockRect(0, &rect, nullptr, D3DLOCK_DISCARD)))
                 {
-                    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(tex.Data);
                     uint8_t* texture_bits = reinterpret_cast<uint8_t*>(rect.pBits);
-                    for (uint32_t i = 0; i < tex.Height; ++i)
+
+                    if (tex.PixelFormat == RendererPixelFormat::RGBA16F)
                     {
-                        for (uint32_t j = 0; j < tex.Width; ++j)
+                        const uint8_t* pixels = reinterpret_cast<const uint8_t*>(tex.Data);
+                        const size_t srcPitch = static_cast<size_t>(tex.Width) * 8u;
+                        for (uint32_t row = 0; row < tex.Height; ++row)
                         {
-                            // RGBA to ARGB Conversion, DX9 doesn't have a RGBA loader
-                            uint32_t color = *pixels++;
-                            reinterpret_cast<uint32_t*>(texture_bits)[j] = ((color & 0xff) << 16) | (color & 0xff00) | ((color & 0xff0000) >> 16) | (color & 0xff000000);
+                            memcpy(texture_bits, pixels + row * srcPitch, srcPitch);
+                            texture_bits += rect.Pitch;
                         }
-                        texture_bits += rect.Pitch;
+                    }
+                    else
+                    {
+                        const uint32_t* pixels = reinterpret_cast<const uint32_t*>(tex.Data);
+                        for (uint32_t row = 0; row < tex.Height; ++row)
+                        {
+                            for (uint32_t col = 0; col < tex.Width; ++col)
+                            {
+                                // RGBA to ARGB Conversion, DX9 doesn't have a RGBA loader
+                                uint32_t color = *pixels++;
+                                reinterpret_cast<uint32_t*>(texture_bits)[col] = ((color & 0xff) << 16) | (color & 0xff00) | ((color & 0xff0000) >> 16) | (color & 0xff000000);
+                            }
+                            texture_bits += rect.Pitch;
+                        }
                     }
 
                     if (SUCCEEDED(dx9Tex->UnlockRect(0)))
