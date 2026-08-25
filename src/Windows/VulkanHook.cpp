@@ -985,6 +985,7 @@ void VulkanHook_t::_LoadResources()
         uint32_t Height;
         VkDeviceSize Offset;
         VkDeviceSize Size;
+        RendererPixelFormat PixelFormat;
     };
 
     std::vector<ValidTexture_t> validResources;
@@ -1003,7 +1004,9 @@ void VulkanHook_t::_LoadResources()
         t.Data = param.Data;
         t.Width = param.Width;
         t.Height = param.Height;
-        t.Size = t.Width * t.Height * 4;
+        t.PixelFormat = param.PixelFormat;
+        VkDeviceSize bytesPerPixel = (param.PixelFormat == RendererPixelFormat::RGBA16F) ? 8u : 4u;
+        t.Size = t.Width * t.Height * bytesPerPixel;
 
         validResources.push_back(t);
     }
@@ -1074,7 +1077,7 @@ void VulkanHook_t::_LoadResources()
         VkImageCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         info.imageType = VK_IMAGE_TYPE_2D;
-        info.format = VK_FORMAT_R8G8B8A8_UNORM;
+        info.format = (tex.PixelFormat == RendererPixelFormat::RGBA16F) ? VK_FORMAT_R16G16B16A16_SFLOAT : VK_FORMAT_R8G8B8A8_UNORM;
         info.extent = { tex.Width, tex.Height, 1 };
         info.mipLevels = 1;
         info.arrayLayers = 1;
@@ -1099,7 +1102,7 @@ void VulkanHook_t::_LoadResources()
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        viewInfo.format = info.format;
         viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.layerCount = 1;
