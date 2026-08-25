@@ -19,7 +19,15 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace InGameOverlay {
+
+enum class RendererPixelFormat : uint8_t
+{
+    RGBA8,
+    RGBA16F,
+};
 
 /// <summary>
 /// Pixel format of the data passed to AttachResource.
@@ -74,11 +82,24 @@ public:
     /// You are responsible to not outlive this object usage to the resource buffer.
     /// Attaching a new resource will trigger the autoload if it is enabled, else, the old resource will still be used until you unload it.
     /// </summary>
-    /// <param name="data">The resource raw data</param>
+    /// <param name="data">The resource raw data (in RGBA8 format)</param>
     /// <param name="width">The resource width</param>
     /// <param name="height">The resource height</param>
     /// <param name="pixelFormat">Pixel format of the data (default: RGBA8)</param>
     virtual void AttachResource(const void* data, uint32_t width, uint32_t height, RendererPixelFormat pixelFormat = RendererPixelFormat::RGBA8) = 0;
+    /// <summary>
+    /// Attach a resource to this RendererResource with an explicit pixel format.
+    /// The default 3-argument overload maps to RendererPixelFormat::RGBA8.
+    /// </summary>
+    /// <param name="data">The resource raw data</param>
+    /// <param name="width">The resource width</param>
+    /// <param name="height">The resource height</param>
+    /// <param name="format">The resource pixel format (RGBA8 or RGBA16F)</param>
+    virtual void AttachResource(const void* data, uint32_t width, uint32_t height, RendererPixelFormat format)
+    {
+        (void)format;
+        AttachResource(data, width, height);
+    }
     /// <summary>
     /// Clears the attached resource. This will NOT delete the resource loaded onto the GPU. Call Unload for that purpose.
     /// </summary>

@@ -72,7 +72,9 @@ uint64_t RendererResourceInternal_t::GetResourceId()
                     loadParameter.Data = _Data;
                     loadParameter.Height = _RendererResource.Height;
                     loadParameter.Width = _RendererResource.Width;
-                    loadParameter.PixelFormat = _PixelFormat;
+                    //add
+                    loadParameter.PixelFormat = _RendererResource.PixelFormat;
+                    //---
                     r->LoadStatus = RendererTextureStatus_e::Loading;
                     _RendererHook->LoadImageResource(loadParameter);
                 }
@@ -111,7 +113,14 @@ uint32_t RendererResourceInternal_t::Height() const
         : _OldRendererResource.Height;
 }
 
-void RendererResourceInternal_t::AttachResource(const void* data, uint32_t width, uint32_t height, RendererPixelFormat pixelFormat)
+void RendererResourceInternal_t::AttachResource(const void* data, uint32_t width, uint32_t height)
+//add
+{
+    AttachResource(data, width, height, RendererPixelFormat::RGBA8);
+}
+
+void RendererResourceInternal_t::AttachResource(const void* data, uint32_t width, uint32_t height, RendererPixelFormat format)
+//---
 {
     if (IsLoaded())
         _OldRendererResource = _RendererResource;
@@ -121,6 +130,9 @@ void RendererResourceInternal_t::AttachResource(const void* data, uint32_t width
     _PixelFormat = pixelFormat;
     _RendererResource.Width = width;
     _RendererResource.Height = height;
+    //add
+    _RendererResource.PixelFormat = format;
+    //---
 }
 
 void RendererResourceInternal_t::ClearAttachedResource()

@@ -92,6 +92,13 @@ enum class ScreenshotDataFormat_t : uint16_t
     B5G6R5,
     B5G5R5A1,
 
+    //add
+    // sRGB variants (hardware sRGB encoding on the RTV)
+    R8G8B8A8_SRGB,
+    B8G8R8A8_SRGB,
+    B8G8R8X8_SRGB,
+    //---
+
     // HDR / float formats
     R16G16B16A16_FLOAT,
     R16G16B16A16_UNORM,
@@ -206,14 +213,17 @@ public:
     ///   Creates an image resource and attach the data to it.
     /// </summary>
     /// <param name="image_data">
-    ///   The RGBA buffer.
+    ///   The RGBA8 buffer.
     /// </param>
     /// <param name="width">
-    ///   Your RGBA image width.
+    ///   Your RGBA8 image width.
     /// </param>
     /// <param name="height">
-    ///   Your RGBA image height.
+    ///   Your RGBA8 image height.
     /// </param>
+    /// <remarks>
+    ///   For RGBA16F uploads, create a resource first and call RendererResource_t::AttachResource with RendererPixelFormat::RGBA16F.
+    /// </remarks>
     /// <returns></returns>
     virtual RendererResource_t* CreateAndAttachResource(const void* image_data, uint32_t width, uint32_t height) = 0;
 
