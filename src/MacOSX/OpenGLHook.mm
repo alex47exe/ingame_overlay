@@ -192,6 +192,7 @@ void OpenGLHook_t::_LoadResources()
         const void* Data;
         uint32_t Width;
         uint32_t Height;
+        RendererPixelFormat PixelFormat;
     };
 
     std::vector<ValidTexture_t> validResources;
@@ -208,7 +209,8 @@ void OpenGLHook_t::_LoadResources()
             r,
             param.Data,
             param.Width,
-            param.Height
+            param.Height,
+            param.PixelFormat
         });
     }
 
@@ -225,7 +227,9 @@ void OpenGLHook_t::_LoadResources()
 
             // Upload pixels into texture
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.Width, tex.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.Data);
+            GLint internalFormat = (tex.PixelFormat == RendererPixelFormat::RGBA16F) ? GL_RGBA16F : GL_RGBA;
+            GLenum dataType = (tex.PixelFormat == RendererPixelFormat::RGBA16F) ? GL_HALF_FLOAT : GL_UNSIGNED_BYTE;
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, tex.Width, tex.Height, 0, GL_RGBA, dataType, tex.Data);
 
             tex.Resource->LoadStatus = RendererTextureStatus_e::Loaded;
         }

@@ -193,6 +193,7 @@ void MetalHook_t::_LoadResources()
         const void* Data;
         uint32_t Width;
         uint32_t Height;
+        RendererPixelFormat PixelFormat;
     };
 
     std::vector<ValidTexture_t> validResources;
@@ -217,7 +218,8 @@ void MetalHook_t::_LoadResources()
             std::move(resource),
             param.Data,
             param.Width,
-            param.Height
+            param.Height,
+            param.PixelFormat
         });
     }
 
@@ -232,9 +234,14 @@ void MetalHook_t::_LoadResources()
 
     for (auto& tex : validResources)
     {
+        MTLPixelFormat pixelFormat = (tex.PixelFormat == RendererPixelFormat::RGBA16F)
+            ? MTLPixelFormatRGBA16Float
+            : MTLPixelFormatRGBA8Unorm;
+        NSUInteger bytesPerPixel = (tex.PixelFormat == RendererPixelFormat::RGBA16F) ? 8u : 4u;
+
         MTLTextureDescriptor* descriptor =
             [MTLTextureDescriptor
-                texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
+                texture2DDescriptorWithPixelFormat:pixelFormat
                 width:tex.Width
                 height:tex.Height
                 mipmapped:NO];
@@ -262,7 +269,7 @@ void MetalHook_t::_LoadResources()
         [texture replaceRegion:region
                    mipmapLevel:0
                      withBytes:tex.Data
-                   bytesPerRow:tex.Width * 4];
+                   bytesPerRow:tex.Width * bytesPerPixel];
 
         tex.Resource->ImGuiTextureId =
             static_cast<uint64_t>(

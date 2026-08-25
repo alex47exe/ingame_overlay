@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsystem.a CMakeFiles/system.dir/src/CPUExtentions.cpp.o CMakeFiles/system.dir/src/EncodingBase64.cpp.o CMakeFiles/system.dir/src/EncodingHex.cpp.o CMakeFiles/system.dir/src/EncodingUTF8.cpp.o CMakeFiles/system.dir/src/Filesystem.cpp.o CMakeFiles/system.dir/src/Date.cpp.o CMakeFiles/system.dir/src/Guid.cpp.o CMakeFiles/system.dir/src/Library.cpp.o CMakeFiles/system.dir/src/String.cpp.o CMakeFiles/system.dir/src/System.cpp.o CMakeFiles/system.dir/src/System_internals.cpp.o CMakeFiles/system.dir/src/DotNet.cpp.o
+/usr/bin/ranlib libsystem.a
