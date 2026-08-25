@@ -122,8 +122,8 @@ deps/mini_detour/clean: deps/mini_detour/CMakeFiles/mini_detour.dir/clean
 # Target rules for target CMakeFiles/ingame_overlay.dir
 
 # All Build rule for target.
-CMakeFiles/ingame_overlay.dir/all: deps/mini_detour/CMakeFiles/mini_detour.dir/all
 CMakeFiles/ingame_overlay.dir/all: deps/System/CMakeFiles/system.dir/all
+CMakeFiles/ingame_overlay.dir/all: deps/mini_detour/CMakeFiles/mini_detour.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingame_overlay.dir/build.make CMakeFiles/ingame_overlay.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingame_overlay.dir/build.make CMakeFiles/ingame_overlay.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/runner/work/ingame_overlay/ingame_overlay/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Built target ingame_overlay"

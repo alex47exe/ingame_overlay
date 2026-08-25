@@ -337,11 +337,23 @@ void DX9Hook_t::_LoadResources()
 
                     if (tex.PixelFormat == RendererPixelFormat::RGBA16F)
                     {
-                        const uint8_t* pixels = reinterpret_cast<const uint8_t*>(tex.Data);
-                        const size_t srcPitch = static_cast<size_t>(tex.Width) * 8u;
+                        const uint16_t* pixels = reinterpret_cast<const uint16_t*>(tex.Data);
+                        const size_t srcPitch = static_cast<size_t>(tex.Width) * 4u;
                         for (uint32_t row = 0; row < tex.Height; ++row)
                         {
-                            memcpy(texture_bits, pixels + row * srcPitch, srcPitch);
+                            auto* dst = reinterpret_cast<uint16_t*>(texture_bits);
+                            const uint16_t* src = pixels + row * srcPitch;
+                            for (uint32_t col = 0; col < tex.Width; ++col)
+                            {
+                                const uint16_t r = src[col * 4 + 0];
+                                const uint16_t g = src[col * 4 + 1];
+                                const uint16_t b = src[col * 4 + 2];
+                                const uint16_t a = src[col * 4 + 3];
+                                dst[col * 4 + 0] = b;
+                                dst[col * 4 + 1] = g;
+                                dst[col * 4 + 2] = r;
+                                dst[col * 4 + 3] = a;
+                            }
                             texture_bits += rect.Pitch;
                         }
                     }
